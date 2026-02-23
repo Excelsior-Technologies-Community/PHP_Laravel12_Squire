@@ -1,0 +1,2 @@
+# PHP_Laravel12_Squire
+PHP_Laravel12_Squire
