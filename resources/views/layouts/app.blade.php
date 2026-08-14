@@ -1,69 +1,94 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 
 <head>
 
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>@yield('title', 'Squire Management System')</title>
+    <title>
+        @yield('title', 'Squire Management System')
+    </title>
 
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f6fa;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+        }
+
+        .stat-card {
+            border: 0;
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .card {
+            border: 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+        }
+
+        .table th {
+            white-space: nowrap;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
 
 </head>
 
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 
         <div class="container">
 
             <a
-                class="navbar-brand fw-bold"
-                href="{{ route('dashboard') }}"
-            >
-                ⚔ Squire System
+                class="navbar-brand"
+                href="{{ route('knights.index') }}">
+                ⚔️ Squire Management
             </a>
 
             <button
                 class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#navbarNav"
-            >
+                data-bs-target="#navbarMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div
                 class="collapse navbar-collapse"
-                id="navbarNav"
-            >
+                id="navbarMenu">
 
-                <ul class="navbar-nav me-auto">
-
-                    <li class="nav-item">
-
-                        <a
-                            class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                            href="{{ route('dashboard') }}"
-                        >
-                            Dashboard
-                        </a>
-
-                    </li>
+                <ul class="navbar-nav ms-auto">
 
                     <li class="nav-item">
 
                         <a
                             class="nav-link {{ request()->routeIs('knights.*') ? 'active' : '' }}"
-                            href="{{ route('knights.index') }}"
-                        >
+                            href="{{ route('knights.index') }}">
                             Knights
                         </a>
 
@@ -73,70 +98,13 @@
 
                         <a
                             class="nav-link {{ request()->routeIs('squires.*') ? 'active' : '' }}"
-                            href="{{ route('squires.index') }}"
-                        >
+                            href="{{ route('squires.index') }}">
                             Squires
                         </a>
 
                     </li>
 
                 </ul>
-
-
-@auth
-
-    <div class="dropdown">
-
-        <button
-            class="btn btn-dark dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
-            {{ Auth::user()->name }}
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-end">
-
-            <li>
-                <span class="dropdown-item-text">
-                    <strong>{{ Auth::user()->name }}</strong>
-                    <br>
-                    <small class="text-muted">
-                        {{ Auth::user()->email }}
-                    </small>
-                </span>
-            </li>
-
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-
-            <li>
-
-                <form
-                    method="POST"
-                    action="{{ route('logout') }}"
-                >
-
-                    @csrf
-
-                    <button
-                        type="submit"
-                        class="dropdown-item"
-                    >
-                        Log Out
-                    </button>
-
-                </form>
-
-            </li>
-
-        </ul>
-
-    </div>
-
-@endauth
 
             </div>
 
@@ -145,56 +113,73 @@
     </nav>
 
 
-    <main class="py-4">
+    <main class="container py-4">
 
-        <div class="container">
+        @if(session('success'))
 
-            @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show">
 
-                <div
-                    class="alert alert-success alert-dismissible fade show"
-                    role="alert"
-                >
+            {{ session('success') }}
 
-                    {{ session('success') }}
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                    ></button>
-
-                </div>
-
-            @endif
-
-            @if(session('error'))
-
-                <div
-                    class="alert alert-danger alert-dismissible fade show"
-                    role="alert"
-                >
-
-                    {{ session('error') }}
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="alert"
-                    ></button>
-
-                </div>
-
-            @endif
-
-            @yield('content')
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"></button>
 
         </div>
+
+        @endif
+
+
+        @if(session('error'))
+
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            {{ session('error') }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"></button>
+
+        </div>
+
+        @endif
+
+
+        @if($errors->any())
+
+        <div class="alert alert-danger">
+
+            <strong>
+                Please fix the following errors:
+            </strong>
+
+            <ul class="mb-0 mt-2">
+
+                @foreach($errors->all() as $error)
+
+                <li>
+                    {{ $error }}
+                </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+        @endif
+
+
+        @yield('content')
 
     </main>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 </body>
 

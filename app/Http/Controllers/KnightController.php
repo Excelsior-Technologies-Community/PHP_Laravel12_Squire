@@ -4,108 +4,99 @@ namespace App\Http\Controllers;
 
 use App\Models\Knight;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class KnightController extends Controller
 {
-    /**
-     * Display a listing of knights with search.
-     */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $search = trim($request->input('search', ''));
+        $query = Knight::withTrashed()
+            ->withCount('squires');
 
-        $knights = Knight::with('squires')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('title', 'like', '%' . $search . '%')
-                        ->orWhere('weapon', 'like', '%' . $search . '%');
-                });
-            })
-            ->latest()
-            ->paginate(10)
+        if ($request->filled('search')) {
+
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('title', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('age')) {
+
+            $query->where('age', $request->age);
+        }
+
+        $knights = $query
+            ->oldest()
+            ->paginate(3)
             ->withQueryString();
 
-        return view('knights.index', compact('knights', 'search'));
+        return view('knights.index', compact('knights'));
     }
 
-    /**
-     * Show form to create a new knight.
-     */
-    public function create(): View
+    public function create()
     {
         return view('knights.create');
     }
 
-    /**
-     * Store a newly created knight.
-     */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:18|max:100',
-            'title' => 'nullable|string|max:255',
-            'weapon' => 'nullable|string|max:255',
-            'experience_years' => 'required|integer|min:0|max:70',
+            'title' => 'required|string|max:255',
+            'experience' => 'required|integer|min:0',
         ]);
 
-        Knight::create($validated);
+        Knight::create($request->all());
 
-        return redirect()
-            ->route('knights.index')
-            ->with('success', 'Knight created successfully!');
+        return redirect()->route('knights.index')
+            ->with('success', 'Knight created successfully.');
     }
 
-    /**
-     * Display a specific knight.
-     */
-    public function show(Knight $knight): View
+    public function show(Knight $knight)
     {
         $knight->load('squires');
 
         return view('knights.show', compact('knight'));
     }
 
-    /**
-     * Show form to edit a knight.
-     */
-    public function edit(Knight $knight): View
+    public function edit(Knight $knight)
     {
         return view('knights.edit', compact('knight'));
     }
 
-    /**
-     * Update a knight.
-     */
-    public function update(Request $request, Knight $knight): RedirectResponse
+    public function update(Request $request, Knight $knight)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:18|max:100',
-            'title' => 'nullable|string|max:255',
-            'weapon' => 'nullable|string|max:255',
-            'experience_years' => 'required|integer|min:0|max:70',
+            'title' => 'required|string|max:255',
+            'experience' => 'required|integer|min:0',
         ]);
 
-        $knight->update($validated);
+        $knight->update($request->all());
 
-        return redirect()
-            ->route('knights.index')
-            ->with('success', 'Knight updated successfully!');
+        return redirect()->route('knights.index')
+            ->with('success', 'Knight updated successfully.');
     }
 
-    /**
-     * Delete a knight.
-     */
-    public function destroy(Knight $knight): RedirectResponse
+    public function destroy(Knight $knight)
     {
         $knight->delete();
 
+        return redirect()->route('knights.index')
+            ->with('success', 'Knight deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $knight = Knight::withTrashed()->findOrFail($id);
+
+        $knight->restore();
+
         return redirect()
             ->route('knights.index')
-            ->with('success', 'Knight deleted successfully!');
+            ->with('success', 'Knight restored successfully.');
     }
 }
