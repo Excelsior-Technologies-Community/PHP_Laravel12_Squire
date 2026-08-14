@@ -10,16 +10,29 @@ use Illuminate\View\View;
 class KnightController extends Controller
 {
     /**
-     * Display a listing of knights
+     * Display a listing of knights with search.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $knights = Knight::with('squires')->latest()->paginate(10);
-        return view('knights.index', compact('knights'));
+        $search = trim($request->input('search', ''));
+
+        $knights = Knight::with('squires')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('title', 'like', '%' . $search . '%')
+                        ->orWhere('weapon', 'like', '%' . $search . '%');
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('knights.index', compact('knights', 'search'));
     }
 
     /**
-     * Show form to create a new knight
+     * Show form to create a new knight.
      */
     public function create(): View
     {
@@ -27,7 +40,7 @@ class KnightController extends Controller
     }
 
     /**
-     * Store a newly created knight
+     * Store a newly created knight.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -41,20 +54,23 @@ class KnightController extends Controller
 
         Knight::create($validated);
 
-        return redirect()->route('knights.index')
+        return redirect()
+            ->route('knights.index')
             ->with('success', 'Knight created successfully!');
     }
 
     /**
-     * Display a specific knight
+     * Display a specific knight.
      */
     public function show(Knight $knight): View
     {
+        $knight->load('squires');
+
         return view('knights.show', compact('knight'));
     }
 
     /**
-     * Show form to edit a knight
+     * Show form to edit a knight.
      */
     public function edit(Knight $knight): View
     {
@@ -62,7 +78,7 @@ class KnightController extends Controller
     }
 
     /**
-     * Update a knight
+     * Update a knight.
      */
     public function update(Request $request, Knight $knight): RedirectResponse
     {
@@ -76,18 +92,20 @@ class KnightController extends Controller
 
         $knight->update($validated);
 
-        return redirect()->route('knights.index')
+        return redirect()
+            ->route('knights.index')
             ->with('success', 'Knight updated successfully!');
     }
 
     /**
-     * Delete a knight
+     * Delete a knight.
      */
     public function destroy(Knight $knight): RedirectResponse
     {
         $knight->delete();
 
-        return redirect()->route('knights.index')
+        return redirect()
+            ->route('knights.index')
             ->with('success', 'Knight deleted successfully!');
     }
 }
