@@ -4,63 +4,16 @@
 
 @section('content')
 
-
-
-
-@if(session('error'))
-
-<div
-    class="alert alert-danger alert-dismissible fade show"
-    role="alert">
-    <strong>Error!</strong>
-    {{ session('error') }}
-
-    <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="alert"></button>
-</div>
-
-@endif
-
-
-{{-- ========================================================= --}}
-{{-- VALIDATION ERRORS --}}
-{{-- ========================================================= --}}
-
-@if($errors->any())
-
-<div class="alert alert-danger">
-
-    <strong>Please fix the following errors:</strong>
-
-    <ul class="mb-0 mt-2">
-
-        @foreach($errors->all() as $error)
-
-        <li>
-            {{ $error }}
-        </li>
-
-        @endforeach
-
-    </ul>
-
-</div>
-
-@endif
-
-
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 {{-- PAGE HEADER --}}
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
 
         <h2 class="fw-bold mb-1">
-            ⚔️ Knights
+            Knights
         </h2>
 
         <p class="text-muted mb-0">
@@ -69,7 +22,6 @@
 
     </div>
 
-
     <div class="d-flex gap-2">
 
         <a
@@ -77,7 +29,6 @@
             class="btn btn-primary">
             + Add Knight
         </a>
-
 
         <a
             href="{{ route('squires.index') }}"
@@ -90,31 +41,76 @@
 </div>
 
 
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 {{-- FUNCTIONALITY BADGES --}}
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 
 <div class="card mb-4">
 
     <div class="card-body">
 
-        
+        <h6 class="fw-bold mb-3">
+            Available Features
+        </h6>
 
+        <span class="badge bg-primary feature-badge">
+            CRUD
+        </span>
 
-        
+        <span class="badge bg-success feature-badge">
+            Search
+        </span>
 
+        <span class="badge bg-info text-dark feature-badge">
+            Filters
+        </span>
+
+        <span class="badge bg-secondary feature-badge">
+            Pagination
+        </span>
+
+        <span class="badge bg-warning text-dark feature-badge">
+            Knight-Squire Assignment
+        </span>
+
+        <span class="badge bg-danger feature-badge">
+            Delete
+        </span>
+
+        <span class="badge bg-dark feature-badge">
+            Validation
+        </span>
+
+        <span class="badge bg-primary feature-badge">
+            Responsive UI
+        </span>
+
+        @if(Route::has('knights.restore'))
+
+        <span class="badge bg-success feature-badge">
+            Restore
+        </span>
+
+        @endif
+
+        @if(Route::has('activity-logs.index'))
+
+        <span class="badge bg-dark feature-badge">
+            Activity Logs
+        </span>
+
+        @endif
+
+    </div>
 
 </div>
 
 
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 {{-- STATISTICS --}}
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 
 <div class="row g-3 mb-4">
-
-
-    {{-- TOTAL KNIGHTS --}}
 
     <div class="col-md-4">
 
@@ -139,8 +135,6 @@
     </div>
 
 
-    {{-- CURRENT PAGE --}}
-
     <div class="col-md-4">
 
         <div class="card stat-card">
@@ -164,8 +158,6 @@
     </div>
 
 
-    {{-- SQUIRES --}}
-
     <div class="col-md-4">
 
         <div class="card stat-card">
@@ -173,7 +165,7 @@
             <div class="card-body">
 
                 <div class="text-muted">
-                    Squires on Current Page
+                    Total Squires
                 </div>
 
                 <div class="stat-number text-info">
@@ -191,9 +183,9 @@
 </div>
 
 
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 {{-- SEARCH + FILTER --}}
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 
 <div class="card mb-4">
 
@@ -204,7 +196,6 @@
             action="{{ route('knights.index') }}">
 
             <div class="row g-3">
-
 
                 {{-- SEARCH --}}
 
@@ -224,7 +215,7 @@
                 </div>
 
 
-                {{-- AGE --}}
+                {{-- AGE FILTER --}}
 
                 <div class="col-md-3">
 
@@ -238,7 +229,6 @@
                         class="form-control"
                         placeholder="Enter age"
                         min="1"
-                        max="100"
                         value="{{ request('age') }}">
 
                 </div>
@@ -260,7 +250,6 @@
                             🔍 Search
                         </button>
 
-
                         <a
                             href="{{ route('knights.index') }}"
                             class="btn btn-outline-secondary">
@@ -280,14 +269,13 @@
 </div>
 
 
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 {{-- KNIGHTS TABLE --}}
-{{-- ========================================================= --}}
+{{-- ============================= --}}
 
 <div class="card">
 
     <div class="card-body">
-
 
         <div class="d-flex justify-content-between align-items-center mb-3">
 
@@ -298,16 +286,8 @@
                 </h5>
 
                 <small class="text-muted">
-
-                    Showing
-                    {{ $knights->count() }}
-
-                    of
-
-                    {{ $knights->total() }}
-
-                    knights
-
+                    Showing {{ $knights->count() }}
+                    of {{ $knights->total() }} knights
                 </small>
 
             </div>
@@ -316,7 +296,6 @@
 
 
         @if($knights->count() > 0)
-
 
         <div class="table-responsive">
 
@@ -336,11 +315,11 @@
 
                         <th>Squires</th>
 
-                        <th>Status</th>
-
                         <th>Created</th>
 
-                        <th>Actions</th>
+                        <th>
+                            Actions
+                        </th>
 
                     </tr>
 
@@ -349,20 +328,9 @@
 
                 <tbody>
 
-
                     @foreach($knights as $knight)
 
-
-                    {{-- ================================================= --}}
-                    {{-- KNIGHT ROW --}}
-                    {{-- ================================================= --}}
-
-                    <tr
-                        @if($knight->trashed())
-                        class="table-danger"
-                        @endif
-                        >
-
+                    <tr>
 
                         {{-- NUMBER --}}
 
@@ -378,9 +346,7 @@
                         <td>
 
                             <strong>
-
                                 {{ $knight->name }}
-
                             </strong>
 
                         </td>
@@ -410,7 +376,7 @@
                         </td>
 
 
-                        {{-- SQUIRES --}}
+                        {{-- SQUIRE COUNT --}}
 
                         <td>
 
@@ -419,31 +385,6 @@
                                 {{ $knight->squires_count }}
 
                             </span>
-
-                        </td>
-
-
-                        {{-- STATUS --}}
-
-                        <td>
-
-                            @if($knight->trashed())
-
-                            <span class="badge bg-danger">
-
-                                🗑 Deleted
-
-                            </span>
-
-                            @else
-
-                            <span class="badge bg-success">
-
-                                ✓ Active
-
-                            </span>
-
-                            @endif
 
                         </td>
 
@@ -457,58 +398,11 @@
                         </td>
 
 
-                        {{-- ================================================= --}}
                         {{-- ACTIONS --}}
-                        {{-- ================================================= --}}
 
                         <td>
 
-                            <div class="d-flex gap-1 flex-wrap">
-
-
-                                @if($knight->trashed())
-
-
-                                {{-- ========================================= --}}
-                                {{-- DELETED KNIGHT --}}
-                                {{-- ========================================= --}}
-
-
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-secondary"
-                                    disabled>
-                                    Deleted
-                                </button>
-
-
-                                {{-- RESTORE BUTTON --}}
-
-                                <form
-                                    action="{{ route('knights.restore', $knight->id) }}"
-                                    method="POST"
-                                    class="d-inline"
-                                    onsubmit="return confirmRestore('{{ addslashes($knight->name) }}');">
-
-                                    @csrf
-
-                                    @method('PATCH')
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm btn-success">
-                                        ♻️ Restore
-                                    </button>
-
-                                </form>
-
-
-                                @else
-
-
-                                {{-- ========================================= --}}
-                                {{-- ACTIVE KNIGHT --}}
-                                {{-- ========================================= --}}
+                            <div class="action-buttons">
 
 
                                 {{-- VIEW --}}
@@ -516,7 +410,7 @@
                                 <a
                                     href="{{ route('knights.show', $knight) }}"
                                     class="btn btn-sm btn-info text-white">
-                                    👁 View
+                                    View
                                 </a>
 
 
@@ -525,7 +419,7 @@
                                 <a
                                     href="{{ route('knights.edit', $knight) }}"
                                     class="btn btn-sm btn-warning">
-                                    ✏️ Edit
+                                    Edit
                                 </a>
 
 
@@ -544,7 +438,7 @@
                                     action="{{ route('knights.destroy', $knight) }}"
                                     method="POST"
                                     class="d-inline"
-                                    onsubmit="return confirmDelete('{{ addslashes($knight->name) }}');">
+                                    onsubmit="return confirm('Are you sure you want to delete this knight?');">
 
                                     @csrf
 
@@ -553,11 +447,33 @@
                                     <button
                                         type="submit"
                                         class="btn btn-sm btn-danger">
-                                        🗑 Delete
+                                        Delete
                                     </button>
 
                                 </form>
 
+
+                                {{-- RESTORE --}}
+                                {{-- Only shown if the route exists --}}
+
+                                @if(Route::has('knights.restore'))
+
+                                <form
+                                    action="{{ route('knights.restore', $knight->id) }}"
+                                    method="POST"
+                                    class="d-inline">
+
+                                    @csrf
+
+                                    @method('PATCH')
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-success">
+                                        Restore
+                                    </button>
+
+                                </form>
 
                                 @endif
 
@@ -566,12 +482,9 @@
 
                         </td>
 
-
                     </tr>
 
-
                     @endforeach
-
 
                 </tbody>
 
@@ -580,9 +493,9 @@
         </div>
 
 
-        {{-- ================================================= --}}
+        {{-- ============================= --}}
         {{-- PAGINATION --}}
-        {{-- ================================================= --}}
+        {{-- ============================= --}}
 
         <div class="mt-4">
 
@@ -593,10 +506,7 @@
 
         @else
 
-
-        {{-- ================================================= --}}
         {{-- EMPTY STATE --}}
-        {{-- ================================================= --}}
 
         <div class="text-center py-5">
 
@@ -612,7 +522,6 @@
                 No knight matches your search/filter.
             </p>
 
-
             <a
                 href="{{ route('knights.create') }}"
                 class="btn btn-primary">
@@ -621,43 +530,10 @@
 
         </div>
 
-
         @endif
-
 
     </div>
 
 </div>
-
-
-{{-- ========================================================= --}}
-{{-- POPUP JAVASCRIPT --}}
-{{-- ========================================================= --}}
-
-<script>
-    function confirmDelete(name) {
-
-        return confirm(
-            "⚠️ Delete Knight?\n\n" +
-            "Knight: " + name + "\n\n" +
-            "The knight will be moved to the deleted state.\n" +
-            "You can restore it later.\n\n" +
-            "Click OK to delete."
-        );
-
-    }
-
-
-    function confirmRestore(name) {
-
-        return confirm(
-            "♻️ Restore Knight?\n\n" +
-            "Knight: " + name + "\n\n" +
-            "This knight will become active again.\n\n" +
-            "Click OK to restore."
-        );
-
-    }
-</script>
 
 @endsection

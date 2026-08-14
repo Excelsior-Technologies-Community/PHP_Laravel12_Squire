@@ -2,135 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Squire;
 use App\Models\Knight;
+use App\Models\Squire;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class SquireController extends Controller
 {
-    /**
-     * Display a listing of squires with search and training filter.
-     */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $search = trim($request->input('search', ''));
-
-        $trainingLevel = $request->input('training_level', '');
+        $search = $request->search;
 
         $squires = Squire::with('knight')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhereHas('knight', function ($query) use ($search) {
-                            $query->where('name', 'like', '%' . $search . '%');
-                        });
-                });
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('training_level', 'like', "%{$search}%");
             })
-            ->when(
-                in_array($trainingLevel, [
-                    'beginner',
-                    'intermediate',
-                    'advanced',
-                ]),
-                function ($query) use ($trainingLevel) {
-                    $query->where(
-                        'training_level',
-                        $trainingLevel
-                    );
-                }
-            )
             ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->paginate(10);
 
-        return view('squires.index', compact(
-            'squires',
-            'search',
-            'trainingLevel'
-        ));
+        return view('squires.index', compact('squires', 'search'));
     }
 
-    /**
-     * Show form to create a new squire.
-     */
-    public function create(): View
+    public function create()
     {
-        $knights = Knight::orderBy('name')->get();
+        $knights = Knight::all();
 
         return view('squires.create', compact('knights'));
     }
 
-    /**
-     * Store a newly created squire.
-     */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:10|max:30',
-            'training_level' => 'required|in:beginner,intermediate,advanced',
+        $request->validate([
             'knight_id' => 'required|exists:knights,id',
+            'name' => 'required|string|max:255',
+            'age' => 'required|integer|min:10|max:100',
+            'training_level' => 'required|string|max:100',
         ]);
 
-        Squire::create($validated);
+        Squire::create($request->all());
 
-        return redirect()
-            ->route('squires.index')
-            ->with('success', 'Squire assigned successfully!');
+        return redirect()->route('squires.index')
+            ->with('success', 'Squire created successfully.');
     }
 
-    /**
-     * Display a specific squire.
-     */
-    public function show(Squire $squire): View
+    public function show(Squire $squire)
     {
         $squire->load('knight');
 
         return view('squires.show', compact('squire'));
     }
 
-    /**
-     * Show form to edit a squire.
-     */
-    public function edit(Squire $squire): View
+    public function edit(Squire $squire)
     {
-        $knights = Knight::orderBy('name')->get();
+        $knights = Knight::all();
 
         return view('squires.edit', compact('squire', 'knights'));
     }
 
-    /**
-     * Update a squire.
-     */
-    public function update(
-        Request $request,
-        Squire $squire
-    ): RedirectResponse {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:10|max:30',
-            'training_level' => 'required|in:beginner,intermediate,advanced',
+    public function update(Request $request, Squire $squire)
+    {
+        $request->validate([
             'knight_id' => 'required|exists:knights,id',
+            'name' => 'required|string|max:255',
+            'age' => 'required|integer|min:10|max:100',
+            'training_level' => 'required|string|max:100',
         ]);
 
-        $squire->update($validated);
+        $squire->update($request->all());
 
-        return redirect()
-            ->route('squires.index')
-            ->with('success', 'Squire updated successfully!');
+        return redirect()->route('squires.index')
+            ->with('success', 'Squire updated successfully.');
     }
 
-    /**
-     * Delete a squire.
-     */
-    public function destroy(Squire $squire): RedirectResponse
+    public function destroy(Squire $squire)
     {
         $squire->delete();
 
-        return redirect()
-            ->route('squires.index')
-            ->with('success', 'Squire dismissed successfully!');
+        return redirect()->route('squires.index')
+            ->with('success', 'Squire deleted successfully.');
     }
 }

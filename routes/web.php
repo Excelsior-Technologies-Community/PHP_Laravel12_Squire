@@ -27,4 +27,11 @@ Route::resource('knights', KnightController::class);
 // Squires
 Route::resource('squires', SquireController::class);
 
+
+
+Route::patch(
+    '/knights/{id}/restore',
+    [KnightController::class, 'restore']
+)->name('knights.restore');
+
 require __DIR__ . '/auth.php';
