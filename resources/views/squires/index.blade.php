@@ -1,136 +1,66 @@
 @extends('layouts.app')
 
-@section('title', 'Squires List')
+@section('title', 'Squires')
 
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
-        <h1 class="mb-1">Squires in Training</h1>
+        <h2 class="page-title mb-1">Squires</h2>
 
         <p class="text-muted mb-0">
-            Search and filter squires by their training progress.
+            Manage all squires
         </p>
     </div>
 
     <a
         href="{{ route('squires.create') }}"
-        class="btn btn-primary"
-    >
-        Assign New Squire
+        class="btn btn-primary">
+        + Add Squire
     </a>
 
 </div>
 
 
-{{-- Search & Filter --}}
-
-<div class="card mb-4 shadow-sm">
+<div class="card mb-4">
 
     <div class="card-body">
 
         <form
-            action="{{ route('squires.index') }}"
             method="GET"
-        >
+            action="{{ route('squires.index') }}">
 
-            <div class="row g-3">
+            <div class="row g-2">
 
-                <div class="col-md-6">
-
-                    <label
-                        for="search"
-                        class="form-label"
-                    >
-                        Search
-                    </label>
+                <div class="col-md-9">
 
                     <input
                         type="text"
                         name="search"
-                        id="search"
                         class="form-control"
-                        value="{{ $search }}"
-                        placeholder="Search squire or knight name..."
-                    >
+                        placeholder="Search by name or training level..."
+                        value="{{ $search ?? request('search') }}">
 
                 </div>
 
-
-                <div class="col-md-4">
-
-                    <label
-                        for="training_level"
-                        class="form-label"
-                    >
-                        Training Level
-                    </label>
-
-                    <select
-                        name="training_level"
-                        id="training_level"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            All Training Levels
-                        </option>
-
-                        <option
-                            value="beginner"
-                            {{ $trainingLevel === 'beginner' ? 'selected' : '' }}
-                        >
-                            Beginner
-                        </option>
-
-                        <option
-                            value="intermediate"
-                            {{ $trainingLevel === 'intermediate' ? 'selected' : '' }}
-                        >
-                            Intermediate
-                        </option>
-
-                        <option
-                            value="advanced"
-                            {{ $trainingLevel === 'advanced' ? 'selected' : '' }}
-                        >
-                            Advanced
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="col-md-2 d-flex align-items-end">
+                <div class="col-md-3 d-flex gap-2">
 
                     <button
                         type="submit"
-                        class="btn btn-dark w-100"
-                    >
-                        Filter
+                        class="btn btn-dark w-100">
+                        Search
                     </button>
-
-                </div>
-
-            </div>
-
-
-            @if($search !== '' || $trainingLevel !== '')
-
-                <div class="mt-3">
 
                     <a
                         href="{{ route('squires.index') }}"
-                        class="btn btn-sm btn-outline-secondary"
-                    >
-                        Clear Filters
+                        class="btn btn-outline-secondary">
+                        Reset
                     </a>
 
                 </div>
 
-            @endif
+            </div>
 
         </form>
 
@@ -139,163 +69,168 @@
 </div>
 
 
-<div class="table-responsive">
+<div class="card">
 
-    <table class="table table-striped table-hover align-middle">
+    <div class="card-body">
 
-        <thead class="table-dark">
+        @if($squires->count() > 0)
 
-            <tr>
+        <div class="table-responsive">
 
-                <th>ID</th>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Training Level</th>
-                <th>Knight</th>
-                <th>Actions</th>
+            <table class="table table-hover align-middle">
 
-            </tr>
+                <thead class="table-dark">
 
-        </thead>
+                    <tr>
 
+                        <th>#</th>
 
-        <tbody>
+                        <th>Name</th>
 
-            @forelse($squires as $squire)
+                        <th>Age</th>
 
-                <tr>
+                        <th>Training Level</th>
 
-                    <td>
-                        {{ $squire->id }}
-                    </td>
+                        <th>Knight</th>
 
-                    <td>
-                        <strong>
-                            {{ $squire->name }}
-                        </strong>
-                    </td>
+                        <th>Created</th>
 
-                    <td>
-                        {{ $squire->age }}
-                    </td>
+                        <th width="220">
+                            Actions
+                        </th>
 
-                    <td>
+                    </tr>
 
-                        @if($squire->training_level === 'beginner')
+                </thead>
 
-                            <span class="badge bg-info">
-                                Beginner
+                <tbody>
+
+                    @foreach($squires as $squire)
+
+                    <tr>
+
+                        <td>
+                            {{ $squires->firstItem() + $loop->index }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ $squire->name }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ $squire->age }}
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-info text-dark">
+                                {{ $squire->training_level }}
                             </span>
 
-                        @elseif($squire->training_level === 'intermediate')
+                        </td>
 
-                            <span class="badge bg-warning text-dark">
-                                Intermediate
-                            </span>
+                        <td>
 
-                        @else
-
-                            <span class="badge bg-success">
-                                Advanced
-                            </span>
-
-                        @endif
-
-                    </td>
-
-                    <td>
-
-                        @if($squire->knight)
+                            @if($squire->knight)
 
                             <a
-                                href="{{ route('knights.show', $squire->knight) }}"
-                            >
+                                href="{{ route('knights.show', $squire->knight) }}">
                                 {{ $squire->knight->name }}
                             </a>
 
-                        @else
+                            @else
 
                             <span class="text-muted">
-                                No Knight Assigned
+                                Not assigned
                             </span>
 
-                        @endif
+                            @endif
 
-                    </td>
+                        </td>
 
-                    <td>
+                        <td>
+                            {{ $squire->created_at?->format('d M Y') }}
+                        </td>
 
-                        <a
-                            href="{{ route('squires.show', $squire) }}"
-                            class="btn btn-sm btn-info"
-                        >
-                            View
-                        </a>
+                        <td>
 
-                        <a
-                            href="{{ route('squires.edit', $squire) }}"
-                            class="btn btn-sm btn-warning"
-                        >
-                            Edit
-                        </a>
+                            <div class="action-buttons">
 
-                        <form
-                            action="{{ route('squires.destroy', $squire) }}"
-                            method="POST"
-                            class="d-inline"
-                        >
+                                <a
+                                    href="{{ route('squires.show', $squire) }}"
+                                    class="btn btn-sm btn-info text-white">
+                                    View
+                                </a>
 
-                            @csrf
-                            @method('DELETE')
+                                <a
+                                    href="{{ route('squires.edit', $squire) }}"
+                                    class="btn btn-sm btn-warning">
+                                    Edit
+                                </a>
 
-                            <button
-                                type="submit"
-                                class="btn btn-sm btn-danger"
-                                onclick="return confirm('Are you sure you want to dismiss this squire?')"
-                            >
-                                Delete
-                            </button>
+                                <form
+                                    action="{{ route('squires.destroy', $squire) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this squire?');">
 
-                        </form>
+                                    @csrf
 
-                    </td>
+                                    @method('DELETE')
 
-                </tr>
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-danger">
+                                        Delete
+                                    </button>
 
-            @empty
+                                </form>
 
-                <tr>
+                            </div>
 
-                    <td
-                        colspan="6"
-                        class="text-center py-4"
-                    >
-                        No squires found.
+                        </td>
 
-                        @if($search !== '' || $trainingLevel !== '')
-                            Try changing your search or filter.
-                        @else
-                            <a href="{{ route('squires.create') }}">
-                                Assign a squire
-                            </a>
-                        @endif
+                    </tr>
 
-                    </td>
+                    @endforeach
 
-                </tr>
+                </tbody>
 
-            @endforelse
+            </table>
 
-        </tbody>
-
-    </table>
-
-</div>
+        </div>
 
 
-<div class="d-flex justify-content-center">
+        <div class="mt-3">
 
-    {{ $squires->links() }}
+            {{ $squires->withQueryString()->links() }}
+
+        </div>
+
+        @else
+
+        <div class="text-center py-5">
+
+            <h5>
+                No squires found
+            </h5>
+
+            <p class="text-muted">
+                There are no squires matching your search.
+            </p>
+
+            <a
+                href="{{ route('squires.create') }}"
+                class="btn btn-primary">
+                Add First Squire
+            </a>
+
+        </div>
+
+        @endif
+
+    </div>
 
 </div>
 
